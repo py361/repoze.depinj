@@ -76,9 +76,8 @@ follows:
 
    class Test_unit_under_test(unittest.TestCase):
        def setUp(self):
-           from zope.component import getSiteManager
-           sm = getSiteManager()
-           sm.__init__()
+           from repoze.depinj import clear
+           clear()
 
        tearDown = setUp
 
@@ -148,9 +147,8 @@ follows:
 
    class Test_unit_under_test(unittest.TestCase):
        def setUp(self):
-           from zope.component import getSiteManager
-           sm = getSiteManager()
-           sm.__init__()
+           from repoze.depinj import clear
+           clear()
 
        tearDown = setUp
 
