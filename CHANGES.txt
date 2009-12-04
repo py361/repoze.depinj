@@ -1,0 +1,7 @@
+repoze.depinj Changelog
+=======================
+
+0.0 (unreleased)
+----------------
+
+- Initial release.
