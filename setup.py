@@ -23,12 +23,9 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = ['zope.component']
-
 setup(name='repoze.depinj',
       version=__version__,
-      description=('Dependency injection framework for unit testing, relying '
-                   'on Zope\'s Component Architecture'),
+      description=('Small dependency injection framework for unit testing'),
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
@@ -43,8 +40,8 @@ setup(name='repoze.depinj',
       include_package_data=True,
       namespace_packages=['repoze'],
       zip_safe=False,
-      tests_require = requires + ['zope.testing'], 
-      install_requires = requires,
+      tests_require = [],
+      install_requires = [],
       test_suite="repoze.depinj",
       entry_points = """\
       """

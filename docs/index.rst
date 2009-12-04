@@ -17,9 +17,8 @@ following ``setUp`` and ``tearDown``:
 
    class MyTest(unittest.TestCase):
        def setUp(self):
-           from zope.component import getSiteManager
-           sm = getSiteManager()
-           sm.__init__()
+           from repoze.depinj import clear
+           clear()
 
        tearDown = setUp
 
@@ -171,6 +170,12 @@ follows:
            self.assertEqual(fixture.positional, 'positional')
            self.assertEqual(fixture.keyword, 2)
 
+``clear``
+~~~~~~~~~
+
+The ``clear`` function accepts no arguments.  It should be used to
+clear the dependency injector between unit tests.
+
 API
 ---
 
@@ -186,6 +191,8 @@ API
   .. autofunction:: inject
 
   .. autofunction:: inject_factory
+
+  .. autofunction:: clear
 
 Indices and tables
 ------------------

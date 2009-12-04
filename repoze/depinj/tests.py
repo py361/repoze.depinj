@@ -1,5 +1,5 @@
 import unittest
-from zope.testing.cleanup import cleanUp
+from repoze.depinj import clear
 
 class TestDependencyInjector(unittest.TestCase):
     def _makeOne(self):
@@ -49,18 +49,15 @@ class TestDependencyInjector(unittest.TestCase):
 
 class Test_lookup(unittest.TestCase):
     def setUp(self):
-        cleanUp()
+        clear()
 
     def tearDown(self):
-        cleanUp()
+        clear()
 
     def test_it_injected(self):
-        from repoze.depinj import IDependencyInjector
         from repoze.depinj import lookup
-        from zope.component import getSiteManager
-        injector = DummyInjector(looked_up='123')
-        sm = getSiteManager()
-        sm.registerUtility(injector, IDependencyInjector)
+        from repoze.depinj import injector
+        injector.inject('123', 'whatever')
         self.assertEqual(lookup('whatever'), '123')
         
     def test_it_not_injected(self):
@@ -69,20 +66,19 @@ class Test_lookup(unittest.TestCase):
         
 class Test_construct(unittest.TestCase):
     def setUp(self):
-        cleanUp()
+        clear()
 
     def tearDown(self):
-        cleanUp()
+        clear()
 
     def test_it_injected(self):
-        from repoze.depinj import IDependencyInjector
         from repoze.depinj import construct
-        from zope.component import getSiteManager
-        injector = DummyInjector(constructed='123')
-        sm = getSiteManager()
-        sm.registerUtility(injector, IDependencyInjector)
-        self.assertEqual(construct('whatever', 'a', b=1), '123')
-        self.assertEqual(injector.construct_args, (('a',), {'b':1}))
+        from repoze.depinj import injector
+        promise = injector.inject_factory(DummyFactory, 'whatever')
+        self.assertEqual(construct('whatever', 'a', b=1).__class__,DummyFactory)
+        fixture = promise()
+        self.assertEqual(fixture.arg, ('a',))
+        self.assertEqual(fixture.kw, {'b':1})
         
     def test_it_not_injected(self):
         from repoze.depinj import construct
@@ -90,35 +86,29 @@ class Test_construct(unittest.TestCase):
 
 class Test_inject_factory(unittest.TestCase):
     def setUp(self):
-        cleanUp()
+        clear()
 
     def tearDown(self):
-        cleanUp()
+        clear()
 
     def test_it(self):
-        from repoze.depinj import IDependencyInjector
         from repoze.depinj import inject_factory
-        from zope.component import getSiteManager
+        from repoze.depinj import injector
         promise = inject_factory(Dummy, DummyFactory)
-        sm = getSiteManager()
-        injector = sm.getUtility(IDependencyInjector)
         injector.factory_results[DummyFactory] = 'result'
         self.assertEqual(promise(), 'result')
 
 class Test_inject(unittest.TestCase):
     def setUp(self):
-        cleanUp()
+        clear()
 
     def tearDown(self):
-        cleanUp()
+        clear()
 
     def test_it(self):
-        from repoze.depinj import IDependencyInjector
         from repoze.depinj import inject
-        from zope.component import getSiteManager
+        from repoze.depinj import injector
         inject(Dummy, DummyFactory)
-        sm = getSiteManager()
-        injector = sm.getUtility(IDependencyInjector)
         self.assertEqual(injector.lookups[DummyFactory], Dummy)
 
 class DummyInjector(object):
