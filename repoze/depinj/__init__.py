@@ -13,7 +13,6 @@ class DependencyInjector(object):
         during a test run."""
         def thunk():
             return self.factory_results[(thunk, real)]
-        self.thunks.append(thunk)
         these_factories = self.factories.setdefault(real, [])
         these_factories.append((thunk, fixture))
         return thunk
