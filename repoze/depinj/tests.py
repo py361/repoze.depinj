@@ -131,6 +131,7 @@ class TestFactoryOrdering(unittest.TestCase):
         construct(Dummy)
         self.assertEqual(thunk2(), 'factory2')
         self.assertEqual(thunk1(), 'factory1')
+        self.assertEqual(construct(Dummy).__class__, Dummy)
     
 class TestLookupOrdering(unittest.TestCase):
     def setUp(self):
