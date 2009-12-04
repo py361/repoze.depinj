@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# repoze.atemplate documentation build configuration file
+# repoze.depinj documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing
 # dir.
@@ -13,6 +13,20 @@
 # out serve to show the default value.
 
 import sys, os
+
+# If your extensions are in another directory, add it here. If the directory
+# is relative to the documentation root, use os.path.abspath to make it
+# absolute, like shown here.
+parent = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(os.path.abspath(parent))
+wd = os.getcwd()
+os.chdir(parent)
+os.system('%s setup.py test -q' % sys.executable)
+os.chdir(wd)
+
+for item in os.listdir(parent):
+    if item.endswith('.egg'):
+        sys.path.append(os.path.join(parent, item))
 
 # If your extensions are in another directory, add it here. If the
 # directory is relative to the documentation root, use os.path.abspath to
@@ -36,7 +50,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General substitutions.
-project = 'repoze.atemplate'
+project = 'repoze.depinj'
 copyright = '2009, Repoze Developers <repoze-dev@lists.repoze.org>'
 
 # The default replacements for |version| and |release|, also used in various
@@ -147,7 +161,7 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'atemplatedoc'
+htmlhelp_basename = 'depinjdoc'
 
 
 # Options for LaTeX output
@@ -163,7 +177,7 @@ htmlhelp_basename = 'atemplatedoc'
 # (source start file, target name, title,
 #  author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'atemplate.tex', 'repoze.atemplate Documentation',
+  ('index', 'depinj.tex', 'repoze.depinj Documentation',
    'Repoze Developers', 'manual'),
 ]
 
