@@ -3,7 +3,6 @@ class DependencyInjector(object):
         self.factories = {}
         self.lookups = {}
         self.factory_results = {}
-        self.thunks = []
 
     def inject_factory(self, fixture, real):
         """ Inject a testing dependency factory.  ``fixture`` is the
