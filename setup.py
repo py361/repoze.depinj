@@ -23,7 +23,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = []
+requires = ['zope.component']
 
 setup(name='repoze.depinj',
       version=__version__,
@@ -43,7 +43,7 @@ setup(name='repoze.depinj',
       include_package_data=True,
       namespace_packages=['repoze'],
       zip_safe=False,
-      tests_require = requires,
+      tests_require = requires + ['zope.testing'], 
       install_requires = requires,
       test_suite="repoze.depinj",
       entry_points = """\

@@ -1,5 +1,6 @@
 from zope.interface import Interface
 from zope.interface import implements
+from zope.component import getSiteManager
 
 class IDependencyInjector(Interface):
     """ """
@@ -28,29 +29,59 @@ class DependencyInjector(object):
     implements(IDependencyInjector)
     def __init__(self):
         self.factories = {}
-        self.nonfactories = {}
-        self.results = {}
+        self.lookups = {}
+        self.factory_results = {}
 
     def inject_factory(self, fixture, real):
         self.factories[real] = fixture
         def promise():
-            return self.results[real]
+            return self.factory_results[real]
         return promise
 
     def inject(self, fixture, real):
-        self.nonfactories[real] = fixture
+        self.lookups[real] = fixture
 
     def construct(self, real, *arg, **kw):
         if real in self.factories:
             fake = self.factories[real]
             result = fake(*arg, **kw)
-            self.results[real] = result
+            self.factory_results[real] = result
             return result
         return real(*arg, **kw)
 
     def lookup(self, real):
-        if real in self.nonfactories:
-            fake = self.nonfactories[real]
+        if real in self.lookups:
+            fake = self.lookups[real]
             return fake
         return real
 
+def lookup(real):
+    reg = getSiteManager()
+    injector = reg.queryUtility(IDependencyInjector)
+    if injector is None:
+        return real
+    return injector.lookup(real)
+
+def construct(real, *arg, **kw):
+    reg = getSiteManager()
+    injector = reg.queryUtility(IDependencyInjector)
+    if injector is None:
+        return real(*arg, **kw)
+    return injector.construct(real, *arg, **kw)
+
+def _make_injector():
+    reg = getSiteManager()
+    injector = reg.queryUtility(IDependencyInjector)
+    if injector is None:
+        injector = DependencyInjector()
+        reg.registerUtility(injector, IDependencyInjector)
+    return injector
+
+def inject_factory(fixture, real):
+    injector = _make_injector()
+    promise = injector.inject_factory(fixture, real)
+    return promise
+
+def inject(fixture, real):
+    injector = _make_injector()
+    return injector.inject(fixture, real)
