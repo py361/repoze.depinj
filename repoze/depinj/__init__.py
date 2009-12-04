@@ -3,21 +3,28 @@ class DependencyInjector(object):
         self.factories = {}
         self.lookups = {}
         self.factory_results = {}
+        self.thunks = []
 
     def inject_factory(self, fixture, real):
         """ Inject a testing dependency factory.  ``fixture`` is the
         factory used for testing purposes.  ``real`` is the actual
-        factory implementation when the system is not used under test."""
+        factory implementation when the system is not used under test.
+        Returns a ``promise`` callable, which accepts no arguments.
+        When called, the promise callable returns the instance created
+        during a test run."""
         def thunk():
-            return self.factory_results[real]
-        self.factories[real] = fixture
+            return self.factory_results[(thunk, real)]
+        self.thunks.append(thunk)
+        these_factories = self.factories.setdefault(real, [])
+        these_factories.append((thunk, fixture))
         return thunk
 
     def inject(self, fixture, real):
         """ Inject a testing dependency object.  ``fixture`` is the
         object used for testing purposes.  ``real`` is the
         actual object when the system is not used under test."""
-        self.lookups[real] = fixture
+        these_lookups = self.lookups.setdefault(real, [])
+        these_lookups.append(fixture)
 
     def construct(self, real, *arg, **kw):
         """ Return the result of a testing factory related to ``real``
@@ -25,10 +32,12 @@ class DependencyInjector(object):
         factory when the system is not under test.  ``*arg`` and
         ``**kw`` will be passed to either factory."""
         if real in self.factories:
-            fake = self.factories[real]
-            result = fake(*arg, **kw)
-            self.factory_results[real] = result
-            return result
+            these_factories = self.factories[real]
+            if these_factories:
+                thunk, fake = these_factories.pop(0)
+                result = fake(*arg, **kw)
+                self.factory_results[(thunk, real)] = result
+                return result
         return real(*arg, **kw)
 
     def lookup(self, real):
@@ -36,8 +45,10 @@ class DependencyInjector(object):
         is under test or the ``real`` when the system is not under
         test."""
         if real in self.lookups:
-            fake = self.lookups[real]
-            return fake
+            these_lookups = self.lookups[real]
+            if these_lookups:
+                fake = these_lookups.pop(0)
+                return fake
         return real
 
     def clear(self):

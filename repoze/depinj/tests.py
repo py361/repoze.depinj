@@ -14,18 +14,18 @@ class TestDependencyInjector(unittest.TestCase):
 
     def test_inject_factory(self):
         injector = self._makeOne()
-        promise = injector.inject_factory(DummyFactory, Dummy)
-        injector.factory_results[Dummy] = 'abc'
-        self.assertEqual(promise(), 'abc')
+        thunk = injector.inject_factory(DummyFactory, Dummy)
+        injector.factory_results[(thunk, Dummy)] = 'abc'
+        self.assertEqual(thunk(), 'abc')
 
     def test_inject(self):
         injector = self._makeOne()
         injector.inject(Dummy, Dummy2)
-        self.assertEqual(injector.lookups[Dummy2], Dummy)
+        self.assertEqual(injector.lookups[Dummy2], [Dummy])
 
     def test_construct_injected(self):
         injector = self._makeOne()
-        injector.factories[Dummy] = DummyFactory
+        injector.factories[Dummy] = [(None, DummyFactory)]
         result = injector.construct(Dummy, 'one', 'two', a=1, b=2)
         self.assertEqual(result.arg, ('one', 'two'))
         self.assertEqual(result.kw, {'a':1, 'b':2})
@@ -38,7 +38,7 @@ class TestDependencyInjector(unittest.TestCase):
 
     def test_lookup_injected(self):
         injector = self._makeOne()
-        injector.lookups[Dummy] = Dummy2
+        injector.lookups[Dummy] = [Dummy2]
         result = injector.lookup(Dummy)
         self.assertEqual(result, Dummy2)
         
@@ -94,9 +94,9 @@ class Test_inject_factory(unittest.TestCase):
     def test_it(self):
         from repoze.depinj import inject_factory
         from repoze.depinj import injector
-        promise = inject_factory(Dummy, DummyFactory)
-        injector.factory_results[DummyFactory] = 'result'
-        self.assertEqual(promise(), 'result')
+        thunk = inject_factory(Dummy, DummyFactory)
+        injector.factory_results[(thunk, DummyFactory)] = 'result'
+        self.assertEqual(thunk(), 'result')
 
 class Test_inject(unittest.TestCase):
     def setUp(self):
@@ -109,7 +109,45 @@ class Test_inject(unittest.TestCase):
         from repoze.depinj import inject
         from repoze.depinj import injector
         inject(Dummy, DummyFactory)
-        self.assertEqual(injector.lookups[DummyFactory], Dummy)
+        self.assertEqual(injector.lookups[DummyFactory], [Dummy])
+
+class TestFactoryOrdering(unittest.TestCase):
+    def setUp(self):
+        clear()
+
+    def tearDown(self):
+        clear()
+
+    def test_it(self):
+        from repoze.depinj import inject_factory
+        from repoze.depinj import construct
+        def factory1():
+            return 'factory1'
+        def factory2():
+            return 'factory2'
+        thunk1 = inject_factory(factory1, Dummy)
+        thunk2 = inject_factory(factory2, Dummy)
+        construct(Dummy)
+        construct(Dummy)
+        self.assertEqual(thunk2(), 'factory2')
+        self.assertEqual(thunk1(), 'factory1')
+    
+class TestLookupOrdering(unittest.TestCase):
+    def setUp(self):
+        clear()
+
+    def tearDown(self):
+        clear()
+
+    def test_it(self):
+        from repoze.depinj import inject
+        from repoze.depinj import lookup
+        inject('ob1', Dummy)
+        inject('ob2', Dummy)
+        self.assertEqual(lookup(Dummy), 'ob1')
+        self.assertEqual(lookup(Dummy), 'ob2')
+        self.assertEqual(lookup(Dummy), Dummy)
+    
 
 class DummyInjector(object):
     def __init__(self, constructed=None, looked_up=None, result=None):
