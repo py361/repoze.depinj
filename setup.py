@@ -12,7 +12,7 @@
 #
 ##############################################################################
 
-__version__ = '0.0'
+__version__ = '0.1'
 
 import os
 
@@ -31,7 +31,7 @@ setup(name='repoze.depinj',
         "Intended Audience :: Developers",
         "Programming Language :: Python",
         ],
-      keywords='zca',
+      keywords='dependency injection unit testing',
       author="Agendaless Consulting",
       author_email="repoze-dev@lists.repoze.org",
       url="http://www.repoze.org",
