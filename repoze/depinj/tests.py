@@ -41,7 +41,7 @@ class TestDependencyInjector(unittest.TestCase):
         injector.lookups[Dummy] = [Dummy2]
         result = injector.lookup(Dummy)
         self.assertEqual(result, Dummy2)
-        
+
     def test_lookup_notinjected(self):
         injector = self._makeOne()
         result = injector.lookup(Dummy)
@@ -59,11 +59,24 @@ class Test_lookup(unittest.TestCase):
         from repoze.depinj import injector
         injector.inject('123', 'whatever')
         self.assertEqual(lookup('whatever'), '123')
-        
+
     def test_it_not_injected(self):
         from repoze.depinj import lookup
         self.assertEqual(lookup('whatever'), 'whatever')
-        
+
+    def test_it_with_a_dict_injected(self):
+        from repoze.depinj import lookup
+        from repoze.depinj import injector
+        dummy = {'foo': 'bar'}
+        injector.inject('foo', dummy)
+        dummy['foo'] = 'baz'  # prove lookup is done on object itself
+        self.assertEqual(lookup(dummy), 'foo')
+
+    def test_it_not_injected(self):
+        from repoze.depinj import lookup
+        dummy = {'foo': 'bar'}
+        self.assertEqual(lookup(dummy), dummy)
+
 class Test_construct(unittest.TestCase):
     def setUp(self):
         clear()
@@ -79,7 +92,7 @@ class Test_construct(unittest.TestCase):
         fixture = promise()
         self.assertEqual(fixture.arg, ('a',))
         self.assertEqual(fixture.kw, {'b':1})
-        
+
     def test_it_not_injected(self):
         from repoze.depinj import construct
         self.assertEqual(construct(DummyFactory).__class__, DummyFactory)
@@ -132,7 +145,7 @@ class TestFactoryOrdering(unittest.TestCase):
         self.assertEqual(thunk2(), 'factory2')
         self.assertEqual(thunk1(), 'factory1')
         self.assertEqual(construct(Dummy).__class__, Dummy)
-    
+
 class TestLookupOrdering(unittest.TestCase):
     def setUp(self):
         clear()
@@ -148,7 +161,7 @@ class TestLookupOrdering(unittest.TestCase):
         self.assertEqual(lookup(Dummy), 'ob1')
         self.assertEqual(lookup(Dummy), 'ob2')
         self.assertEqual(lookup(Dummy), Dummy)
-    
+
 
 class DummyInjector(object):
     def __init__(self, constructed=None, looked_up=None, result=None):
@@ -173,4 +186,4 @@ class DummyFactory(object):
     def __init__(self, *arg, **kw):
         self.arg = arg
         self.kw = kw
-        
+

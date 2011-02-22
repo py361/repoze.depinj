@@ -21,7 +21,7 @@ class DependencyInjector(object):
         """ Inject a testing dependency object.  ``fixture`` is the
         object used for testing purposes.  ``real`` is the
         actual object when the system is not used under test."""
-        these_lookups = self.lookups.setdefault(real, [])
+        these_lookups = self.lookups.setdefault(_key(real), [])
         these_lookups.append(fixture)
 
     def construct(self, real, *arg, **kw):
@@ -42,8 +42,9 @@ class DependencyInjector(object):
         """ Return a testing object related to ``real`` if the system
         is under test or the ``real`` when the system is not under
         test."""
-        if real in self.lookups:
-            these_lookups = self.lookups[real]
+        key = _key(real)
+        if key in self.lookups:
+            these_lookups = self.lookups[key]
             if these_lookups:
                 fake = these_lookups.pop(0)
                 return fake
@@ -52,6 +53,39 @@ class DependencyInjector(object):
     def clear(self):
         """ Clear the dependency injection registry """
         self.__init__()
+
+
+def _key(obj):
+    """
+    Makes a key from an object suitable for looking up.  If object is hashable
+    just returns the object.  Otherwise wraps object in _ObjectKey which uses
+    the implementations of __hash__ and __eq__ which are in 'object', allowing
+    any object to be used as a lookup key.
+    """
+    try:
+        hash(obj)
+        return obj
+    except TypeError:
+        return _ObjectKey(obj)
+
+
+class _ObjectKey(object):
+    """
+    Wraps an arbitrary object allowing otherwise unhashable objects to be used
+    as lookup keys by using implementations of __hash__ and __eq__ in 'object'.
+    """
+
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+
+    def __hash__(self):
+        return object.__hash__(self.wrapped)
+
+    def __eq__(self, other):
+        if isinstance(other, _ObjectKey):
+            return self.wrapped is other.wrapped
+        return False
+
 
 injector = DependencyInjector()
 lookup = injector.lookup
