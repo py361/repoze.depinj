@@ -58,33 +58,13 @@ class DependencyInjector(object):
 def _key(obj):
     """
     Makes a key from an object suitable for looking up.  If object is hashable
-    just returns the object.  Otherwise wraps object in _ObjectKey which uses
-    the implementations of __hash__ and __eq__ which are in 'object', allowing
-    any object to be used as a lookup key.
+    just returns the object, otherwise returns id.
     """
     try:
         hash(obj)
         return obj
     except TypeError:
-        return _ObjectKey(obj)
-
-
-class _ObjectKey(object):
-    """
-    Wraps an arbitrary object allowing otherwise unhashable objects to be used
-    as lookup keys by using implementations of __hash__ and __eq__ in 'object'.
-    """
-
-    def __init__(self, wrapped):
-        self.wrapped = wrapped
-
-    def __hash__(self):
-        return object.__hash__(self.wrapped)
-
-    def __eq__(self, other):
-        if isinstance(other, _ObjectKey):
-            return self.wrapped is other.wrapped
-        return False
+        return id(obj)
 
 
 injector = DependencyInjector()
