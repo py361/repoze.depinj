@@ -1,6 +1,11 @@
 repoze.depinj Changelog
 =======================
 
+0.4 (unreleased)
+----------------
+
+- Declare supported Python versions / implementations explicitly.
+
 0.3 (2011-03-07)
 ----------------
 
