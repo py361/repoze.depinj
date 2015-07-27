@@ -4,7 +4,7 @@ repoze.depinj Changelog
 0.3 (2011-03-07)
 ----------------
 
-- Removed inaccurate statement in README.txt.
+- Remove inaccurate statement in ``README.txt``.
 
 0.2 (2011-03-07)
 ----------------
