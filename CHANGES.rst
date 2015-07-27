@@ -4,6 +4,9 @@ repoze.depinj Changelog
 0.4 (unreleased)
 ----------------
 
+- Test all supported versions / platforms under Tox, including 100%
+  unit test coverage and docs.
+
 - Declare supported Python versions / implementations explicitly.
 
 0.3 (2011-03-07)

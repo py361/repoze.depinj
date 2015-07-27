@@ -27,6 +27,10 @@ with open(os.path.join(here, 'README.rst')) as f:
 with open(os.path.join(here, 'CHANGES.rst')) as f:
     CHANGES = f.read()
 
+testing_extras = ['nose', 'coverage']
+
+docs_extras = ['Sphinx']
+
 setup(name='repoze.depinj',
       version=__version__,
       description=('Small dependency injection framework for unit testing'),
@@ -57,7 +61,11 @@ setup(name='repoze.depinj',
       tests_require = [],
       install_requires = [],
       test_suite="repoze.depinj",
+      extras_require = {
+        'testing':  testing_extras,
+        'docs':  docs_extras,
+      },
       entry_points = """\
-      """
+      """,
       )
 

@@ -1,4 +1,9 @@
 *.pyc
 *.pyo
 *.egg-info
+.coverage
+coverage.xml
+nosetests.xml
 dist/
+.tox/
+docs/_build/
